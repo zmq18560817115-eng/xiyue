@@ -6,7 +6,7 @@ import { createApp } from './app.js';
 import { loadDatabase } from './db/store.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.API_PORT ?? 3001);
+const PORT = Number(process.env.PORT ?? process.env.API_PORT ?? 3001);
 
 if (process.env.NODE_ENV === 'production') {
   const indexHtml = path.join(__dirname, '..', 'dist', 'index.html');

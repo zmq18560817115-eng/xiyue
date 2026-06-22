@@ -1,0 +1,30 @@
+# Render Blueprint — 膝悦 KneeJoy 云端演示（单服务：前端静态资源 + REST API）
+# 连接 GitHub 后 Render 会自动读取本文件并部署
+# 文档: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: kneejoy
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Vite 构建时注入（Render 构建阶段可用）
+      - key: VITE_HARDWARE_MODE
+        value: mqtt
+      - key: VITE_MQTT_URL
+        value: wss://ae98d3ea.ala.cn-hangzhou.emqxsl.cn:8084/mqtt
+      - key: VITE_DEVICE_ID
+        value: kj_d885ac8d1872
+      # 以下请在 Render Dashboard 手动填写（sync: false 表示 Blueprint 不覆盖已有值）
+      - key: VITE_MQTT_USERNAME
+        sync: false
+      - key: VITE_MQTT_PASSWORD
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
