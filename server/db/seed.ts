@@ -133,6 +133,10 @@ function buildTherapyLogs(): TherapyLog[] {
 export function createSeedDatabase(): Database {
   const clinical_cases = buildClinicalCases();
   const caseFor2002 = clinical_cases.find((c) => c.case_id === 2)!;
+  const wangPrescription = clinical_cases.find((c) => c.case_id === 1)!.treatment;
+
+  const demoPrescriptionId = 'rx_seed_2001';
+  const demoPrescriptionCreatedAt = '2026-06-22 10:00:00';
 
   return {
     schema_version: 2,
@@ -230,7 +234,8 @@ export function createSeedDatabase(): Database {
         joint_fluid: 3,
         pain_score: 7,
         auth_code: null,
-        binding_doctor_id: null,
+        binding_doctor_id: '1001',
+        auth_code_used: true,
         onboarding_completed: true,
         attendance_rate: 75,
         check_in_dates: ['2026-06-03', '2026-06-04', '2026-06-05', '2026-06-06', '2026-06-07', '2026-06-08', DEMO_THERAPY_DATE],
@@ -238,6 +243,7 @@ export function createSeedDatabase(): Database {
           { date: '2026-06-08', pain_score: 7, left_force: 20, right_force: 18, temp: 43 },
           { date: DEMO_THERAPY_DATE, pain_score: 7, left_force: 22, right_force: 20, temp: 44 },
         ],
+        current_prescription: wangPrescription,
       },
       {
         id: '2002',
@@ -330,7 +336,7 @@ export function createSeedDatabase(): Database {
     ],
     clinical_cases,
     devices: {
-      '2001': defaultDevice({ left_force: 22, right_force: 20, duration: 25, temp: 44, vibration: 1 }),
+      '2001': defaultDevice(wangPrescription),
       '2002': defaultDevice(caseFor2002.treatment),
       '2003': defaultDevice({ left_force: 12, right_force: 12, duration: 15, temp: 40, vibration: 1 }),
       '2004': {
@@ -363,9 +369,30 @@ export function createSeedDatabase(): Database {
       },
     },
     sessions: [],
-    prescriptions: [],
+    prescriptions: [
+      {
+        id: demoPrescriptionId,
+        doctor_id: '1001',
+        patient_id: '2001',
+        params: wangPrescription,
+        status: 'pending',
+        created_at: demoPrescriptionCreatedAt,
+      },
+    ],
     nudges: [],
-    notifications: [],
+    notifications: [
+      {
+        id: 'not_seed_rx_2001',
+        user_id: '2001',
+        type: 'prescription',
+        title: '主治医生下发特制理疗贴方',
+        message:
+          '骨科康复科李正清主任针对您今日的疼痛指数，特别下发了左侧 25N, 右侧 22N, 恒温温热 45℃ 的处方方案。',
+        timestamp: demoPrescriptionCreatedAt,
+        read: false,
+        action_by: '李正清主任',
+      },
+    ],
     family_bindings: [
       {
         id: '501',

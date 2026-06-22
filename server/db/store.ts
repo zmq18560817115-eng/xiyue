@@ -84,7 +84,16 @@ function syncDemoSeedAccounts(): void {
     }
   }
   for (const pat of seed.patients) {
-    if (db.patients.some((p) => p.id === pat.id)) {
+    const existing = db.patients.find((p) => p.id === pat.id);
+    if (existing) {
+      if (existing.binding_doctor_id !== pat.binding_doctor_id) {
+        existing.binding_doctor_id = pat.binding_doctor_id;
+        changed = true;
+      }
+      if (pat.current_prescription && !existing.current_prescription) {
+        existing.current_prescription = pat.current_prescription;
+        changed = true;
+      }
       continue;
     }
     const seedUser = seed.users.find((u) => u.patient_id === pat.id);

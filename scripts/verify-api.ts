@@ -88,6 +88,11 @@ function verifySeedData() {
     fail('张阿姨医嘱绑定', 'auth_code/binding_doctor_id 不正确');
   } else pass('张阿姨医嘱导入', 'auth_code=' + zhang.auth_code + ', doctor=1001');
 
+  const wang = db.patients.find((p) => p.id === '2001');
+  if (wang?.binding_doctor_id !== '1001') {
+    fail('王大爷签约绑定', 'binding_doctor_id 应为 1001，实际 ' + wang?.binding_doctor_id);
+  } else pass('王大爷签约李医生', 'binding_doctor_id=1001');
+
   if (db.family_bindings.length < 1) fail('亲情绑定', '无记录');
   else pass('亲情绑定 Family_Binding', 'binding ' + db.family_bindings[0].patient_id);
 

@@ -58,10 +58,8 @@ router.get('/me/patients', requireAuth, requireRole('doctor'), (req: AuthedReque
   if (!doctor) return res.status(404).json({ error: '医生档案不存在' });
   const today = todayString();
 
-  // 签约患者（binding_doctor_id）+ 全库患者监控大盘
-  const monitored = db.patients.filter(
-    (p) => p.binding_doctor_id === doctor.id || db.patients.length <= 5
-  );
+  // 仅展示签约到本医生的患者
+  const monitored = db.patients.filter((p) => p.binding_doctor_id === doctor.id);
 
   const patients = monitored.map((p) => {
     const todayLog = db.therapy_logs.find(

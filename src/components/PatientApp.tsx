@@ -287,8 +287,8 @@ export default function PatientApp({
   };
 
   const handleSelectMessage = (msg: PatientMessage) => {
-    if (msg.category === 'doctor' && msg.prescription_params) {
-      setMessageCenterOpen(false);
+    setMessageCenterOpen(false);
+    if (msg.category === 'doctor') {
       onOpenDoctorMessage?.(msg);
     }
   };

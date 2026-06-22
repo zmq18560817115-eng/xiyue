@@ -77,7 +77,7 @@ export default function App() {
     joint_fluid: 3,
     pain_score: 7,
     auth_code: null,
-    binding_doctor_id: null,
+    binding_doctor_id: '1001',
     attendance_rate: 75,
     check_in_dates: [],
     history: [],
@@ -843,15 +843,19 @@ export default function App() {
                     setPrescriptionReviewMeta(null);
                   }}
                   onOpenDoctorMessage={(msg) => {
-                    if (!msg.prescription_params) return;
-                    setRemotePrescription(msg.prescription_params);
-                    setPendingPrescriptionId(msg.prescription_id ?? null);
                     setPrescriptionReviewMeta({
                       title: msg.title,
                       message: msg.message,
                       timestamp: msg.timestamp,
                       action_by: msg.action_by,
                     });
+                    if (msg.prescription_params) {
+                      setRemotePrescription(msg.prescription_params);
+                      setPendingPrescriptionId(msg.prescription_id ?? null);
+                    } else {
+                      setRemotePrescription(null);
+                      setPendingPrescriptionId(null);
+                    }
                     setPrescriptionDetailOpen(true);
                   }}
                   onLogout={handleLogout}
