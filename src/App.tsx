@@ -364,15 +364,12 @@ export default function App() {
         if (apiOnline && activeSessionId && nextSeconds % 30 === 0) {
           syncDeviceTelemetry({
             time_left_seconds: nextSeconds,
-            temp: parseFloat((prev.temp + (Math.random() > 0.8 ? 0.2 : 0)).toFixed(1)),
           }).catch(() => undefined);
         }
 
-        const jitter = Math.random() > 0.8 ? (Math.random() > 0.5 ? 0.2 : -0.2) : 0;
         return {
           ...prev,
           time_left_seconds: nextSeconds,
-          temp: parseFloat((prev.temp + jitter).toFixed(1)),
         };
       });
     }, 1000);
@@ -603,12 +600,25 @@ export default function App() {
 
       if (result.device!.transport === 'wifi') {
         deviceController.startPolling((status) => {
-          setHardwareState((current) => ({
-            ...current,
-            ...statusToTelemetryPatch(status),
-            connection: 'wifi',
-            is_mock_mode: false,
-          }));
+          setHardwareState((current) => {
+            const patch = statusToTelemetryPatch(status);
+            if (current.is_running) {
+              const { left_force: _l, right_force: _r, temp: _t, is_running: _run, ...rest } = patch;
+              return {
+                ...current,
+                ...rest,
+                connection: 'wifi',
+                is_mock_mode: false,
+              };
+            }
+            return {
+              ...current,
+              ...patch,
+              temp: status.heater_duty > 0 ? Math.max(0, Math.round(status.temp)) : 0,
+              connection: 'wifi',
+              is_mock_mode: false,
+            };
+          });
         });
       }
 

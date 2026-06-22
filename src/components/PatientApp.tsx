@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Play, Square, Sparkles, Sliders, Calendar, CalendarDays, Award, Settings, 
   HelpCircle, ShieldCheck, Heart, Radio, RefreshCw, UserCheck, AlertTriangle,
-  ArrowLeft, MessageSquare, Check, ChevronRight, Bell, ClipboardList, Lightbulb,
+  ArrowLeft, MessageSquare, Check, CheckCircle, ChevronRight, Bell, ClipboardList, Lightbulb,
   PersonStanding, Zap, Footprints, BookOpen, Timer, Lock, Sprout, Trees, Shield,
   HeartHandshake, Users, LogOut, Trophy, TrendingUp, Mountain, Bluetooth, Wifi, Send,
 } from 'lucide-react';
@@ -104,6 +104,21 @@ function profileToSymptomForm(profile: PatientProfile): SymptomFormState {
     joint_fluid: profile.joint_fluid,
     pain_score: profile.pain_score,
   };
+}
+
+function normalizePlanParams(params: TreatmentParams): TreatmentParams {
+  return {
+    left_force: Math.max(0, Math.round(params.left_force)),
+    right_force: Math.max(0, Math.round(params.right_force)),
+    duration: Math.max(5, Math.round(params.duration)),
+    temp: Math.max(0, Math.round(params.temp)),
+    vibration: Math.min(2, Math.max(0, Math.round(params.vibration))) as 0 | 1 | 2,
+  };
+}
+
+/** 未运行加热时 UI 固定显示 0℃；运行中显示方案设定温度 */
+function displayHeatTemp(isRunning: boolean, planTemp: number): number {
+  return isRunning ? Math.max(0, planTemp) : 0;
 }
 
 interface PatientAppProps {
@@ -333,47 +348,21 @@ export default function PatientApp({
     details: ClinicalCase;
   } | null>(null);
 
-  // Manual parameters override toggler
-  const [isManualMode, setIsManualMode] = useState<boolean>(false);
-
-  // Temporary holding parameters for editing
-  const [tempParams, setTempParams] = useState<TreatmentParams>({
-    left_force: 15,
-    right_force: 15,
-    duration: 20,
-    temp: 42,
-    vibration: 1
+  // 智能方案锁定参数（只读，不可手动微调）
+  const [activePlanParams, setActivePlanParams] = useState<TreatmentParams | null>(() => {
+    if (patientProfile.current_prescription) {
+      return normalizePlanParams(patientProfile.current_prescription);
+    }
+    return null;
   });
 
-  // 设备参数变更时同步到微调缓存（处方更新、医嘱下发等）
   useEffect(() => {
-    if (hardwareState.is_running) return;
-    setTempParams({
-      left_force: hardwareState.left_force,
-      right_force: hardwareState.right_force,
-      duration: hardwareState.duration,
-      temp: hardwareState.temp,
-      vibration: hardwareState.vibration,
-    });
-  }, [
-    hardwareState.is_running,
-    hardwareState.left_force,
-    hardwareState.right_force,
-    hardwareState.duration,
-    hardwareState.temp,
-    hardwareState.vibration,
-  ]);
+    if (patientProfile.current_prescription) {
+      setActivePlanParams(normalizePlanParams(patientProfile.current_prescription));
+    }
+  }, [patientProfile.current_prescription]);
 
-  /** 控制面板展示：未解锁微调时显示设备当前参数，解锁后显示微调缓存 */
-  const controlPanelParams: TreatmentParams = isManualMode
-    ? tempParams
-    : {
-        left_force: hardwareState.left_force,
-        right_force: hardwareState.right_force,
-        duration: hardwareState.duration,
-        temp: hardwareState.temp,
-        vibration: hardwareState.vibration,
-      };
+  const planReady = Boolean(activePlanParams);
 
   // Connections and offline exercise states
   const [errConnectionLockMessage, setErrConnectionLockMessage] = useState<string | null>(null);
@@ -446,25 +435,18 @@ export default function PatientApp({
     if (!lastMatchResult) return;
     const matched = lastMatchResult.details;
 
-    // Safe loads to treatment params and hardware state
-    setTempParams({
-      left_force: matched.treatment.left_force,
-      right_force: matched.treatment.right_force,
-      duration: matched.treatment.duration,
-      temp: matched.treatment.temp,
-      vibration: matched.treatment.vibration
-    });
+    const plan = normalizePlanParams(matched.treatment);
+    setActivePlanParams(plan);
 
     onUpdateHardware({
-      left_force: matched.treatment.left_force,
-      right_force: matched.treatment.right_force,
-      duration: matched.treatment.duration,
-      temp: matched.treatment.temp,
-      vibration: matched.treatment.vibration,
-      time_left_seconds: matched.treatment.duration * 60
+      left_force: plan.left_force,
+      right_force: plan.right_force,
+      duration: plan.duration,
+      temp: plan.temp,
+      vibration: plan.vibration,
+      time_left_seconds: plan.duration * 60,
     });
 
-    setIsManualMode(false);
     setTherapyStep('control');
     if (apiOnline) {
       updatePatientSymptoms(toSymptomInput(symptomForm), { onboarding_completed: true }).catch(
@@ -544,16 +526,16 @@ export default function PatientApp({
 
   // Doctor treatment parameter adoption
   const handleAcceptDoctorParams = (params: TreatmentParams) => {
-    setTempParams(params);
+    const plan = normalizePlanParams(params);
+    setActivePlanParams(plan);
     onUpdateHardware({
-      left_force: params.left_force,
-      right_force: params.right_force,
-      duration: params.duration,
-      temp: params.temp,
-      vibration: params.vibration,
-      time_left_seconds: params.duration * 60
+      left_force: plan.left_force,
+      right_force: plan.right_force,
+      duration: plan.duration,
+      temp: plan.temp,
+      vibration: plan.vibration,
+      time_left_seconds: plan.duration * 60,
     });
-    setIsManualMode(false); // Lock to physician safe parameters
     setTherapyStep('control');
 
     onSendHardwareAction(`[专家组套确认] 患者采纳了博爱在线医学团队推荐并特别定制调整的随诊物理参数！`);
@@ -571,62 +553,47 @@ export default function PatientApp({
       }
       return;
     }
+    if (!activePlanParams) {
+      alert('请先完成智能评估并载入推荐方案，再开始治疗。');
+      return;
+    }
+    const plan = activePlanParams;
     if (hardwareState.is_running) {
-      // STOP
       onUpdateHardware({ is_running: false }, { syncRunToDevice: true });
       onSendHardwareAction(`[物理治疗阻断] 患者手动紧急终止了当前治疗进程，机械缸卸载压力清空`);
     } else {
-      // Verify safety clip
       if (!hardwareState.is_safety_clip_attached) {
         onSendHardwareAction(`[硬件报警终止] 发送错误: 物理防夹防滑空载保护塞(Safety-Clip)未插紧！治疗无法启动。`);
         alert('安全警报：请在左侧硬件面板上先插紧物理安全塞以确保操作安全。');
         return;
       }
-
-      // START
-      const runningLeft = isManualMode ? tempParams.left_force : hardwareState.left_force;
-      const runningRight = isManualMode ? tempParams.right_force : hardwareState.right_force;
-      const runningDur = isManualMode ? tempParams.duration : hardwareState.duration;
-      const runningTemp = isManualMode ? tempParams.temp : hardwareState.temp;
-      const runningVib = isManualMode ? tempParams.vibration : hardwareState.vibration;
-
-      // safety cap overrides
-      if (runningLeft > hardwareState.max_force_limit || runningRight > hardwareState.max_force_limit) {
+      if (plan.left_force > hardwareState.max_force_limit || plan.right_force > hardwareState.max_force_limit) {
         onSendHardwareAction(`[超限防护重整] 系统检测到力值设定过高。安全过载保护已激活，强制重调拉力至安全范围最大限度${hardwareState.max_force_limit}N`);
         return;
       }
-
       onUpdateHardware(
         {
           is_running: true,
-          left_force: runningLeft,
-          right_force: runningRight,
-          duration: runningDur,
-          temp: runningTemp,
-          vibration: runningVib,
-          time_left_seconds: runningDur * 60,
+          left_force: plan.left_force,
+          right_force: plan.right_force,
+          duration: plan.duration,
+          temp: plan.temp,
+          vibration: plan.vibration,
+          time_left_seconds: plan.duration * 60,
         },
         { syncRunToDevice: true }
       );
-
-      onSendHardwareAction(`[理疗开始命令] 软件封装串行指令发包 -> @STxCMD: L_F=${runningLeft}N, R_F=${runningRight}N, TEMP=${runningTemp}℃, VIB=${runningVib}档`);
+      onSendHardwareAction(`[理疗开始命令] 软件封装串行指令发包 -> @STxCMD: L_F=${plan.left_force}N, R_F=${plan.right_force}N, TEMP=${plan.temp}℃, VIB=${plan.vibration}档`);
     }
   };
 
   const handleConfirmPrescriptionUpdate = async () => {
     if (!remotePrescription || isApplyingPrescription) return;
     setIsApplyingPrescription(true);
-    const rx = remotePrescription;
-    setTempParams({
-      left_force: rx.left_force,
-      right_force: rx.right_force,
-      duration: rx.duration,
-      temp: rx.temp,
-      vibration: rx.vibration,
-    });
+    const rx = normalizePlanParams(remotePrescription);
+    setActivePlanParams(rx);
     try {
       await onAcceptPrescription(rx);
-      setIsManualMode(false);
       setTherapyStep('control');
       setActiveTab('therapy');
     } catch (err) {
@@ -637,19 +604,13 @@ export default function PatientApp({
   };
 
   const handleApplyDoctorPrescription = async () => {
-    const rx = patientProfile.current_prescription;
-    if (!rx || isApplyingPrescription) return;
+    const raw = patientProfile.current_prescription;
+    if (!raw || isApplyingPrescription) return;
     setIsApplyingPrescription(true);
-    setTempParams({
-      left_force: rx.left_force,
-      right_force: rx.right_force,
-      duration: rx.duration,
-      temp: rx.temp,
-      vibration: rx.vibration,
-    });
+    const rx = normalizePlanParams(raw);
+    setActivePlanParams(rx);
     try {
       await onAcceptPrescription(rx);
-      setIsManualMode(false);
       setTherapyStep('control');
       setActiveTab('therapy');
     } catch (err) {
@@ -671,6 +632,7 @@ export default function PatientApp({
       if (apiOnline) {
         const res = await redeemDoctorCode(code);
         onUpdateHardware(res.device);
+        setActivePlanParams(normalizePlanParams(res.params));
         onSendHardwareAction(
           `[授权码导入成功] 已导入${res.doctor_name ?? '主治医生'}定制处方 -> L=${res.params.left_force}N, R=${res.params.right_force}N`
         );
@@ -686,7 +648,6 @@ export default function PatientApp({
         });
         onSendHardwareAction(`[离线模式] 授权码「${code}」已本地载入演示参数`);
       }
-      setIsManualMode(false);
       setIsColdBootActive(false);
       setTherapyStep('control');
       setActiveTab('therapy');
@@ -1211,8 +1172,23 @@ export default function PatientApp({
         {activeTab === 'therapy' && (
           <div className="flex-1 flex flex-col gap-4">
             
-            {/* 1.0 BLUETOOTH DEVICE CONNECTION STATUS WIDGET — 仅在控制面板/离线首页展示 */}
+            {/* 1.0 连接状态 — 方案控制页展示「方案就绪」，不显示未连接 */}
             {!isClinicalAssessmentFlow && (
+            showControlPanel && planReady ? (
+            <div className="bg-emerald-50 rounded-3xl p-4.5 border border-emerald-200 shadow-sm flex flex-col gap-2 shrink-0">
+              <div className="flex items-center gap-3 text-left">
+                <div className="p-2.5 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <CheckCircle size={20} />
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-emerald-900">智能理疗方案已就绪</h4>
+                  <p className="text-xs text-emerald-700/90 mt-1 leading-relaxed">
+                    参数已按 AI 评估结果锁定。确认后可开始治疗；连接设备后将自动同步至硬件。
+                  </p>
+                </div>
+              </div>
+            </div>
+            ) : (
             <div className="bg-white rounded-3xl p-4.5 shadow-md shadow-slate-100/60 flex flex-col gap-2.5 shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-left">
@@ -1317,6 +1293,7 @@ export default function PatientApp({
                 />
               )}
             </div>
+            )
             )}
 
             {/* 1.0b / 1.1 离线徒手康复 — 仅在控制面板且未连接设备时展示，不与自评/匹配/聊天混排 */}
@@ -1872,13 +1849,6 @@ export default function PatientApp({
             {/* STEP D: THE CENTRAL THERAPEUTIC HARDWARE CONTROL PANEL Dashboard */}
             {showControlPanel && (
               <div className="bg-white rounded-3xl p-5 shadow-md shadow-slate-100/60 flex flex-col gap-4 animate-in fade-in duration-200">
-                {!isHardwareLinked && !isConnecting && (
-                  <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[11px] font-bold text-amber-900 leading-relaxed">
-                    {mqttMode
-                      ? '设备未连接云端：请先在上方打开连接开关，或到「设置 → MQTT 云端连接」。连接成功后即可在本页开始治疗。'
-                      : '设备未连接：请先在上方打开连接开关后再开始治疗。'}
-                  </div>
-                )}
                 <div className="flex justify-between items-center mb-1">
                   <div className="flex flex-col text-left">
                     <button
@@ -1894,37 +1864,17 @@ export default function PatientApp({
                       <h3 className="text-sm font-black text-slate-900 font-display">理疗控制面板</h3>
                     </div>
                   </div>
-                  
-                  {/* Manual control toggle switch */}
-                  <div className="flex items-center gap-2 select-none">
-                    <span className="text-xs text-slate-650 font-black">解锁微调</span>
-                    <button
-                      onClick={() => {
-                        if (!hardwareState.is_running) {
-                          setIsManualMode(!isManualMode);
-                          onSendHardwareAction(`[模式变更] 患者${!isManualMode ? '开启了拉力与温度手动微调' : '退出了自定义模式，恢复AI推荐设计'}`);
-                        }
-                      }}
-                      disabled={hardwareState.is_running}
-                      className={`w-10 h-5.5 rounded-full p-0.5 transition-colors duration-200 cursor-pointer ${
-                        isManualMode ? 'bg-indigo-600' : 'bg-slate-200'
-                      } ${hardwareState.is_running ? 'opacity-40 cursor-not-allowed' : ''}`}
-                    >
-                      <div className={`w-4.5 h-4.5 rounded-full bg-white shadow-sm transform transition-transform duration-200 ${
-                        isManualMode ? 'translate-x-4.5' : 'translate-x-0'
-                      }`} />
-                    </button>
-                  </div>
+                  <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded-full">
+                    智能方案锁定
+                  </span>
                 </div>
 
-                {/* Status display: Countdowns / active indicators */}
-                {hardwareState.is_running ? (
+                {hardwareState.is_running && activePlanParams ? (
                   <div className="bg-indigo-950 text-white rounded-2xl p-4 flex flex-col items-center gap-2.5 border border-indigo-500/20 shadow-md">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs text-emerald-400 font-bold animate-pulse">
                       <Radio size={12} /> 理疗仪运行中 (ACTIVE)
                     </span>
                     
-                    {/* Digital countdown stopwatch */}
                     <div className="flex items-baseline gap-1 text-slate-200 my-1">
                       <span className="text-3xl font-mono font-bold text-white tracking-widest">
                         {Math.floor(hardwareState.time_left_seconds / 60).toString().padStart(2, '0')}
@@ -1936,23 +1886,22 @@ export default function PatientApp({
                       <span className="text-sm font-black text-zinc-400">秒</span>
                     </div>
 
-                    {/* Indicators panel */}
                     <div className="grid grid-cols-4 gap-2 w-full mt-1 bg-white/5 p-3 rounded-xl border border-white/5">
                       <div className="flex flex-col">
                         <span className="text-[10px] text-zinc-400 font-bold mb-0.5">左侧拉力</span>
-                        <span className="text-sm font-black font-mono text-indigo-300">{hardwareState.left_force}N</span>
+                        <span className="text-sm font-black font-mono text-indigo-300">{activePlanParams.left_force}N</span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[10px] text-zinc-400 font-bold mb-0.5">右侧拉力</span>
-                        <span className="text-sm font-black font-mono text-indigo-300">{hardwareState.right_force}N</span>
+                        <span className="text-sm font-black font-mono text-indigo-300">{activePlanParams.right_force}N</span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[10px] text-zinc-400 font-bold mb-0.5">红外热敷</span>
-                        <span className="text-sm font-black font-mono text-red-300">{hardwareState.temp}℃</span>
+                        <span className="text-sm font-black font-mono text-red-300">{displayHeatTemp(true, activePlanParams.temp)}℃</span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[10px] text-zinc-400 font-bold mb-0.5">温和按摩</span>
-                        <span className="text-sm font-black font-mono text-cyan-300">{hardwareState.vibration === 0 ? '关' : hardwareState.vibration === 1 ? '低频' : '高频'}</span>
+                        <span className="text-sm font-black font-mono text-cyan-300">{activePlanParams.vibration === 0 ? '关' : activePlanParams.vibration === 1 ? '低频' : '高频'}</span>
                       </div>
                     </div>
                   </div>
@@ -1963,94 +1912,51 @@ export default function PatientApp({
                   </div>
                 )}
 
-                {/* Slider adjustment bars (active only when unlocked/not running) */}
-                <div className={`p-4.5 bg-slate-50/80 rounded-2xl flex flex-col gap-4.5 font-bold border border-slate-100/50 ${
-                  (!isManualMode || hardwareState.is_running) ? 'opacity-55 cursor-not-allowed pointer-events-none' : ''
-                }`}>
-                  {/* 1. Left Force Slider */}
-                  <div className="flex flex-col gap-1.5 animate-none">
+                {/* 方案参数只读展示（智能生成，不可修改） */}
+                {activePlanParams ? (
+                <div className="p-4.5 bg-slate-50/80 rounded-2xl flex flex-col gap-4.5 font-bold border border-slate-100/50 opacity-90 pointer-events-none select-none">
+                  <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center text-xs font-bold text-slate-800">
                       <span className="text-slate-800 font-black text-sm">左侧牵引拉力</span>
-                      <span className="font-mono font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-0.5 rounded-full text-xs">{controlPanelParams.left_force} N</span>
+                      <span className="font-mono font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-0.5 rounded-full text-xs">{activePlanParams.left_force} N</span>
                     </div>
-                    <input
-                      type="range"
-                      min={10}
-                      max={40}
-                      value={controlPanelParams.left_force}
-                      onChange={(e) => setTempParams({ ...tempParams, left_force: parseInt(e.target.value) })}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                    />
+                    <input type="range" readOnly disabled min={10} max={40} value={activePlanParams.left_force} className="w-full h-2 bg-slate-200 rounded-lg accent-indigo-600" />
                   </div>
-
-                  {/* 2. Right Force Slider */}
-                  <div className="flex flex-col gap-1.5 animate-none">
+                  <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center text-xs font-bold text-slate-800">
                       <span className="text-slate-800 font-black text-sm">右侧牵引拉力</span>
-                      <span className="font-mono font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-0.5 rounded-full text-xs">{controlPanelParams.right_force} N</span>
+                      <span className="font-mono font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-0.5 rounded-full text-xs">{activePlanParams.right_force} N</span>
                     </div>
-                    <input
-                      type="range"
-                      min={10}
-                      max={40}
-                      value={controlPanelParams.right_force}
-                      onChange={(e) => setTempParams({ ...tempParams, right_force: parseInt(e.target.value) })}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                    />
+                    <input type="range" readOnly disabled min={10} max={40} value={activePlanParams.right_force} className="w-full h-2 bg-slate-200 rounded-lg accent-indigo-600" />
                   </div>
-
-                  {/* 3. Temp Slider */}
-                  <div className="flex flex-col gap-1.5 animate-none">
+                  <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center text-xs font-bold text-slate-800">
                       <span className="text-slate-800 font-black text-sm">红外热敷温度</span>
-                      <span className="font-mono font-black text-red-600 bg-red-100/80 px-2.5 py-0.5 rounded-full text-xs">{controlPanelParams.temp} ℃</span>
+                      <span className="font-mono font-black text-red-600 bg-red-100/80 px-2.5 py-0.5 rounded-full text-xs">
+                        {displayHeatTemp(hardwareState.is_running, activePlanParams.temp)} ℃
+                      </span>
                     </div>
-                    <input
-                      type="range"
-                      min={35}
-                      max={50}
-                      value={controlPanelParams.temp}
-                      onChange={(e) => setTempParams({ ...tempParams, temp: parseInt(e.target.value) })}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-500"
-                    />
+                    <input type="range" readOnly disabled min={0} max={50} value={displayHeatTemp(hardwareState.is_running, activePlanParams.temp)} className="w-full h-2 bg-slate-200 rounded-lg accent-red-500" />
                   </div>
-
-                  {/* 4. Dur Slider */}
-                  <div className="flex flex-col gap-1.5 animate-none">
+                  <div className="flex flex-col gap-1.5">
                     <div className="flex justify-between items-center text-xs font-bold text-slate-800">
                       <span className="text-slate-800 font-black text-sm">定时理疗时间</span>
-                      <span className="font-mono font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-0.5 rounded-full text-xs">{controlPanelParams.duration} 分钟</span>
+                      <span className="font-mono font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-0.5 rounded-full text-xs">{activePlanParams.duration} 分钟</span>
                     </div>
-                    <input
-                      type="range"
-                      min={5}
-                      max={45}
-                      value={controlPanelParams.duration}
-                      onChange={(e) => setTempParams({ ...tempParams, duration: parseInt(e.target.value) })}
-                      className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
-                    />
+                    <input type="range" readOnly disabled min={5} max={45} value={activePlanParams.duration} className="w-full h-2 bg-slate-200 rounded-lg accent-indigo-600" />
                   </div>
-
-                  {/* 5. Vibration dropdown switches */}
                   <div className="flex justify-between items-center text-slate-850">
                     <span className="text-sm text-slate-800 font-black">按摩振动模式</span>
-                    <div className="flex gap-2">
-                      {[0, 1, 2].map((mode) => (
-                        <button
-                          key={mode}
-                          onClick={() => setTempParams({ ...tempParams, vibration: mode })}
-                          className={`px-3 py-1.5 text-xs font-black rounded-xl border-2 cursor-pointer transition ${
-                            controlPanelParams.vibration === mode
-                              ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm shadow-indigo-600/10'
-                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-100'
-                          }`}
-                        >
-                          {mode === 0 ? '无振动' : mode === 1 ? '低频揉和' : '高频舒张'}
-                        </button>
-                      ))}
-                    </div>
+                    <span className="text-xs font-black text-indigo-700 bg-indigo-100/80 px-2.5 py-1 rounded-full">
+                      {vibrationLabel(activePlanParams.vibration)}
+                    </span>
                   </div>
                 </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-xs font-bold text-slate-500">
+                    请先完成智能评估并载入推荐方案
+                  </div>
+                )}
 
                 {/* CORE LAUNCH SWITCHES BUTTONS */}
                 <button
