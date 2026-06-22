@@ -1,0 +1,1053 @@
+{
+  "schema_version": 2,
+  "users": [
+    {
+      "id": "1001",
+      "role": "doctor",
+      "phone": "13800138001",
+      "password": "pass_doc_1",
+      "name": "李正清主任",
+      "doctor_id": "1001",
+      "created_at": "2026-05-01 09:00:00"
+    },
+    {
+      "id": "2001",
+      "role": "patient",
+      "phone": "18612345678",
+      "password": "pass_pat_1",
+      "name": "王大爷(自购型)",
+      "patient_id": "2001",
+      "created_at": "2026-06-01 08:30:00"
+    },
+    {
+      "id": "2002",
+      "role": "patient",
+      "phone": "15599998888",
+      "password": "pass_pat_2",
+      "name": "张阿姨(医嘱型)",
+      "patient_id": "2002",
+      "created_at": "2026-06-02 10:15:00"
+    },
+    {
+      "id": "2003",
+      "role": "patient",
+      "phone": "17744445555",
+      "password": "pass_pat_3",
+      "name": "程序员小李(年轻退行性)",
+      "patient_id": "2003",
+      "created_at": "2026-06-05 19:00:00"
+    },
+    {
+      "id": "3001",
+      "role": "family",
+      "phone": "13099990000",
+      "password": "pass_fam_1",
+      "name": "家人守护者(小王)",
+      "family_id": "3001",
+      "created_at": "2026-06-01 09:00:00"
+    },
+    {
+      "id": "1002",
+      "role": "doctor",
+      "phone": "13800002002",
+      "password": "pass_doc_2",
+      "name": "周慧敏医师",
+      "doctor_id": "1002",
+      "created_at": "2026-06-10 09:00:00"
+    },
+    {
+      "id": "2004",
+      "role": "patient",
+      "phone": "18800002004",
+      "password": "pass_pat_4",
+      "name": "刘女士(检流程)",
+      "patient_id": "2004",
+      "created_at": "2026-06-10 09:00:00"
+    },
+    {
+      "id": "3002",
+      "role": "family",
+      "phone": "13000002002",
+      "password": "pass_fam_2",
+      "name": "李先生(检流程)",
+      "family_id": "3002",
+      "created_at": "2026-06-10 09:00:00"
+    },
+    {
+      "id": "2005",
+      "role": "patient",
+      "phone": "18900003005",
+      "password": "pass_pat_5",
+      "name": "新人小陈(全新检流程)",
+      "patient_id": "2005",
+      "created_at": "2026-06-11 10:00:00"
+    },
+    {
+      "id": "user_patient_1782107089091_n947z3",
+      "role": "patient",
+      "phone": "13112984542",
+      "name": "新患者",
+      "patient_id": "pat_1782107089092_z57mhm",
+      "created_at": "2026-06-22T05:44:49.092Z",
+      "password": "123"
+    },
+    {
+      "id": "user_patient_1782114543741_4vuw20",
+      "role": "patient",
+      "phone": "18820180952",
+      "name": "新患者",
+      "patient_id": "pat_1782114543741_jspjk4",
+      "created_at": "2026-06-22T07:49:03.741Z",
+      "password": "sowhattz233"
+    }
+  ],
+  "patients": [
+    {
+      "id": "2001",
+      "user_id": "2001",
+      "name": "王大爷",
+      "age": 23,
+      "phone": "186****5678",
+      "cartilage_wear": 3,
+      "joint_fluid": 2,
+      "pain_score": 6,
+      "auth_code": null,
+      "binding_doctor_id": null,
+      "onboarding_completed": true,
+      "attendance_rate": 75,
+      "check_in_dates": [
+        "2026-06-03",
+        "2026-06-04",
+        "2026-06-05",
+        "2026-06-06",
+        "2026-06-07",
+        "2026-06-08",
+        "2026-06-22"
+      ],
+      "history": [
+        {
+          "date": "2026-06-08",
+          "pain_score": 7,
+          "left_force": 20,
+          "right_force": 18,
+          "temp": 43
+        },
+        {
+          "date": "2026-06-22",
+          "pain_score": 7,
+          "left_force": 22,
+          "right_force": 20,
+          "temp": 44
+        }
+      ],
+      "symptoms_assessed": true
+    },
+    {
+      "id": "2002",
+      "user_id": "2002",
+      "name": "张阿姨",
+      "age": 58,
+      "phone": "155****8888",
+      "cartilage_wear": 2,
+      "joint_fluid": 1,
+      "pain_score": 4,
+      "auth_code": "883912",
+      "binding_doctor_id": "1001",
+      "auth_code_used": false,
+      "onboarding_completed": true,
+      "attendance_rate": 50,
+      "check_in_dates": [
+        "2026-06-05",
+        "2026-06-07"
+      ],
+      "history": [],
+      "current_prescription": {
+        "left_force": 15,
+        "right_force": 15,
+        "duration": 20,
+        "temp": 42,
+        "vibration": 1
+      }
+    },
+    {
+      "id": "2003",
+      "user_id": "2003",
+      "name": "程序员小李",
+      "age": 32,
+      "phone": "177****5555",
+      "cartilage_wear": 1,
+      "joint_fluid": 2,
+      "pain_score": 5,
+      "auth_code": null,
+      "binding_doctor_id": null,
+      "onboarding_completed": true,
+      "attendance_rate": 60,
+      "check_in_dates": [
+        "2026-06-06",
+        "2026-06-08",
+        "2026-06-22"
+      ],
+      "history": [
+        {
+          "date": "2026-06-22",
+          "pain_score": 5,
+          "left_force": 12,
+          "right_force": 12,
+          "temp": 40
+        }
+      ]
+    },
+    {
+      "id": "2004",
+      "user_id": "2004",
+      "name": "刘女士",
+      "age": 62,
+      "phone": "188****2004",
+      "cartilage_wear": 3,
+      "joint_fluid": 2,
+      "pain_score": 6,
+      "auth_code": null,
+      "binding_doctor_id": null,
+      "onboarding_completed": false,
+      "symptoms_assessed": false,
+      "attendance_rate": 0,
+      "check_in_dates": [],
+      "history": []
+    },
+    {
+      "id": "2005",
+      "user_id": "2005",
+      "name": "小陈",
+      "age": 55,
+      "phone": "189****3005",
+      "cartilage_wear": 3,
+      "joint_fluid": 2,
+      "pain_score": 5,
+      "auth_code": null,
+      "binding_doctor_id": null,
+      "onboarding_completed": false,
+      "symptoms_assessed": false,
+      "attendance_rate": 0,
+      "check_in_dates": [],
+      "history": []
+    },
+    {
+      "id": "pat_1782107089092_z57mhm",
+      "user_id": "user_patient_1782107089091_n947z3",
+      "name": "新患者",
+      "age": 11,
+      "phone": "13112984542",
+      "cartilage_wear": 1,
+      "joint_fluid": 1,
+      "pain_score": 4,
+      "attendance_rate": 0,
+      "check_in_dates": [],
+      "history": [],
+      "onboarding_completed": true,
+      "symptoms_assessed": true
+    },
+    {
+      "id": "pat_1782114543741_jspjk4",
+      "user_id": "user_patient_1782114543741_4vuw20",
+      "name": "新患者",
+      "age": 23,
+      "phone": "18820180952",
+      "cartilage_wear": 1,
+      "joint_fluid": 1,
+      "pain_score": 4,
+      "attendance_rate": 0,
+      "check_in_dates": [],
+      "history": [],
+      "onboarding_completed": true,
+      "symptoms_assessed": true
+    }
+  ],
+  "doctors": [
+    {
+      "id": "1001",
+      "user_id": "1001",
+      "name": "李正清主任",
+      "is_verified": true,
+      "dept": "骨科康复科",
+      "license_id": "DOC-1001-KNEE"
+    },
+    {
+      "id": "1002",
+      "user_id": "1002",
+      "name": "周慧敏医师",
+      "is_verified": true,
+      "dept": "骨科康复科",
+      "license_id": "DOC-1002-TEST"
+    }
+  ],
+  "clinical_cases": [
+    {
+      "case_id": 1,
+      "case_name": "临床案例 · 65岁 · 磨损4级 · 积液3级 · 痛8分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 65,
+        "cartilage_wear": 4,
+        "joint_fluid": 3,
+        "pain_score": 8
+      },
+      "treatment": {
+        "left_force": 25,
+        "right_force": 22,
+        "duration": 25,
+        "temp": 45,
+        "vibration": 2
+      }
+    },
+    {
+      "case_id": 2,
+      "case_name": "临床案例 · 55岁 · 磨损2级 · 积液1级 · 痛4分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 55,
+        "cartilage_wear": 2,
+        "joint_fluid": 1,
+        "pain_score": 4
+      },
+      "treatment": {
+        "left_force": 15,
+        "right_force": 15,
+        "duration": 20,
+        "temp": 42,
+        "vibration": 1
+      }
+    },
+    {
+      "case_id": 3,
+      "case_name": "临床案例 · 72岁 · 磨损5级 · 积液4级 · 痛9分",
+      "doctor_id": "1002",
+      "symptoms": {
+        "age": 72,
+        "cartilage_wear": 5,
+        "joint_fluid": 4,
+        "pain_score": 9
+      },
+      "treatment": {
+        "left_force": 30,
+        "right_force": 28,
+        "duration": 30,
+        "temp": 48,
+        "vibration": 0
+      }
+    },
+    {
+      "case_id": 4,
+      "case_name": "临床案例 · 32岁 · 磨损1级 · 积液2级 · 痛5分",
+      "doctor_id": "1002",
+      "symptoms": {
+        "age": 32,
+        "cartilage_wear": 1,
+        "joint_fluid": 2,
+        "pain_score": 5
+      },
+      "treatment": {
+        "left_force": 12,
+        "right_force": 12,
+        "duration": 15,
+        "temp": 40,
+        "vibration": 1
+      }
+    },
+    {
+      "case_id": 5,
+      "case_name": "临床案例 · 60岁 · 磨损3级 · 积液2级 · 痛6分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 60,
+        "cartilage_wear": 3,
+        "joint_fluid": 2,
+        "pain_score": 6
+      },
+      "treatment": {
+        "left_force": 18,
+        "right_force": 18,
+        "duration": 20,
+        "temp": 43,
+        "vibration": 2
+      }
+    },
+    {
+      "case_id": 6,
+      "case_name": "临床案例 · 68岁 · 磨损4级 · 积液2级 · 痛7分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 68,
+        "cartilage_wear": 4,
+        "joint_fluid": 2,
+        "pain_score": 7
+      },
+      "treatment": {
+        "left_force": 22,
+        "right_force": 20,
+        "duration": 25,
+        "temp": 44,
+        "vibration": 1
+      }
+    },
+    {
+      "case_id": 7,
+      "case_name": "临床案例 · 50岁 · 磨损2级 · 积液2级 · 痛5分",
+      "doctor_id": "1002",
+      "symptoms": {
+        "age": 50,
+        "cartilage_wear": 2,
+        "joint_fluid": 2,
+        "pain_score": 5
+      },
+      "treatment": {
+        "left_force": 16,
+        "right_force": 16,
+        "duration": 20,
+        "temp": 41,
+        "vibration": 2
+      }
+    },
+    {
+      "case_id": 8,
+      "case_name": "临床案例 · 75岁 · 磨损5级 · 积液5级 · 痛10分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 75,
+        "cartilage_wear": 5,
+        "joint_fluid": 5,
+        "pain_score": 10
+      },
+      "treatment": {
+        "left_force": 32,
+        "right_force": 30,
+        "duration": 30,
+        "temp": 46,
+        "vibration": 0
+      }
+    },
+    {
+      "case_id": 9,
+      "case_name": "临床案例 · 28岁 · 磨损1级 · 积液1级 · 痛3分",
+      "doctor_id": "1002",
+      "symptoms": {
+        "age": 28,
+        "cartilage_wear": 1,
+        "joint_fluid": 1,
+        "pain_score": 3
+      },
+      "treatment": {
+        "left_force": 10,
+        "right_force": 10,
+        "duration": 12,
+        "temp": 39,
+        "vibration": 1
+      }
+    },
+    {
+      "case_id": 10,
+      "case_name": "临床案例 · 63岁 · 磨损3级 · 积液3级 · 痛7分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 63,
+        "cartilage_wear": 3,
+        "joint_fluid": 3,
+        "pain_score": 7
+      },
+      "treatment": {
+        "left_force": 20,
+        "right_force": 18,
+        "duration": 22,
+        "temp": 43,
+        "vibration": 2
+      }
+    },
+    {
+      "case_id": 11,
+      "case_name": "临床案例 · 57岁 · 磨损3级 · 积液1级 · 痛5分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 57,
+        "cartilage_wear": 3,
+        "joint_fluid": 1,
+        "pain_score": 5
+      },
+      "treatment": {
+        "left_force": 16,
+        "right_force": 15,
+        "duration": 20,
+        "temp": 42,
+        "vibration": 1
+      }
+    },
+    {
+      "case_id": 12,
+      "case_name": "临床案例 · 70岁 · 磨损4级 · 积液4级 · 痛8分",
+      "doctor_id": "1002",
+      "symptoms": {
+        "age": 70,
+        "cartilage_wear": 4,
+        "joint_fluid": 4,
+        "pain_score": 8
+      },
+      "treatment": {
+        "left_force": 26,
+        "right_force": 25,
+        "duration": 25,
+        "temp": 45,
+        "vibration": 0
+      }
+    },
+    {
+      "case_id": 13,
+      "case_name": "临床案例 · 35岁 · 磨损2级 · 积液2级 · 痛6分",
+      "doctor_id": "1002",
+      "symptoms": {
+        "age": 35,
+        "cartilage_wear": 2,
+        "joint_fluid": 2,
+        "pain_score": 6
+      },
+      "treatment": {
+        "left_force": 14,
+        "right_force": 14,
+        "duration": 15,
+        "temp": 41,
+        "vibration": 1
+      }
+    },
+    {
+      "case_id": 14,
+      "case_name": "临床案例 · 66岁 · 磨损4级 · 积液3级 · 痛9分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 66,
+        "cartilage_wear": 4,
+        "joint_fluid": 3,
+        "pain_score": 9
+      },
+      "treatment": {
+        "left_force": 28,
+        "right_force": 26,
+        "duration": 25,
+        "temp": 46,
+        "vibration": 2
+      }
+    },
+    {
+      "case_id": 15,
+      "case_name": "临床案例 · 52岁 · 磨损1级 · 积液1级 · 痛4分",
+      "doctor_id": "1001",
+      "symptoms": {
+        "age": 52,
+        "cartilage_wear": 1,
+        "joint_fluid": 1,
+        "pain_score": 4
+      },
+      "treatment": {
+        "left_force": 12,
+        "right_force": 12,
+        "duration": 15,
+        "temp": 40,
+        "vibration": 1
+      }
+    }
+  ],
+  "devices": {
+    "2001": {
+      "is_mock_mode": true,
+      "connection": "wifi",
+      "is_running": true,
+      "left_force": 0,
+      "right_force": 1,
+      "duration": 15,
+      "temp": 36,
+      "vibration": 1,
+      "time_left_seconds": 690,
+      "max_force_limit": 35,
+      "is_safety_clip_attached": true,
+      "battery_level": 100
+    },
+    "2002": {
+      "is_mock_mode": true,
+      "connection": "bluetooth",
+      "is_running": false,
+      "left_force": 15,
+      "right_force": 15,
+      "duration": 20,
+      "temp": 42,
+      "vibration": 1,
+      "time_left_seconds": 1200,
+      "max_force_limit": 35,
+      "is_safety_clip_attached": true,
+      "battery_level": 92
+    },
+    "2003": {
+      "is_mock_mode": true,
+      "connection": "bluetooth",
+      "is_running": false,
+      "left_force": 12,
+      "right_force": 12,
+      "duration": 15,
+      "temp": 40,
+      "vibration": 1,
+      "time_left_seconds": 900,
+      "max_force_limit": 35,
+      "is_safety_clip_attached": true,
+      "battery_level": 92
+    },
+    "2004": {
+      "is_mock_mode": true,
+      "connection": "disconnected",
+      "is_running": false,
+      "left_force": 15,
+      "right_force": 15,
+      "duration": 20,
+      "temp": 42,
+      "vibration": 1,
+      "time_left_seconds": 1200,
+      "max_force_limit": 35,
+      "is_safety_clip_attached": true,
+      "battery_level": 100
+    },
+    "2005": {
+      "is_mock_mode": true,
+      "connection": "disconnected",
+      "is_running": false,
+      "left_force": 15,
+      "right_force": 15,
+      "duration": 20,
+      "temp": 42,
+      "vibration": 1,
+      "time_left_seconds": 1200,
+      "max_force_limit": 35,
+      "is_safety_clip_attached": true,
+      "battery_level": 100
+    },
+    "pat_1782107089092_z57mhm": {
+      "is_mock_mode": false,
+      "connection": "wifi",
+      "is_running": false,
+      "left_force": 10,
+      "right_force": 10,
+      "duration": 5,
+      "temp": 36,
+      "vibration": 1,
+      "time_left_seconds": 300,
+      "max_force_limit": 35,
+      "is_safety_clip_attached": true,
+      "battery_level": 100,
+      "estop": false,
+      "sw_estop": false,
+      "device_fault": 0,
+      "hw_estop": false
+    },
+    "pat_1782114543741_jspjk4": {
+      "is_mock_mode": true,
+      "connection": "disconnected",
+      "is_running": false,
+      "left_force": 10,
+      "right_force": 10,
+      "duration": 12,
+      "temp": 39,
+      "vibration": 1,
+      "time_left_seconds": 720,
+      "max_force_limit": 35,
+      "is_safety_clip_attached": true,
+      "battery_level": 100
+    }
+  },
+  "sessions": [
+    {
+      "id": "sess_1782107515586_jz3l11",
+      "patient_id": "pat_1782107089092_z57mhm",
+      "params": {
+        "left_force": -1,
+        "right_force": 2,
+        "duration": 12,
+        "temp": 36,
+        "vibration": 1
+      },
+      "status": "stopped",
+      "source": "manual",
+      "started_at": "2026-06-22T05:51:55.586Z",
+      "time_left_seconds": 720,
+      "ended_at": "2026-06-22T05:52:02.182Z"
+    },
+    {
+      "id": "sess_1782107525879_ijf5oe",
+      "patient_id": "pat_1782107089092_z57mhm",
+      "params": {
+        "left_force": -1,
+        "right_force": 7,
+        "duration": 12,
+        "temp": 36,
+        "vibration": 1
+      },
+      "status": "stopped",
+      "source": "manual",
+      "started_at": "2026-06-22T05:52:05.879Z",
+      "time_left_seconds": 720,
+      "ended_at": "2026-06-22T05:55:10.678Z"
+    },
+    {
+      "id": "sess_1782108408023_xehoxg",
+      "patient_id": "pat_1782107089092_z57mhm",
+      "params": {
+        "left_force": 10,
+        "right_force": 10,
+        "duration": 5,
+        "temp": 36,
+        "vibration": 1
+      },
+      "status": "stopped",
+      "source": "manual",
+      "started_at": "2026-06-22T06:06:48.023Z",
+      "time_left_seconds": 300,
+      "ended_at": "2026-06-22T06:07:01.828Z"
+    },
+    {
+      "id": "sess_1782112357722_s9dxnl",
+      "patient_id": "2001",
+      "params": {
+        "left_force": 0,
+        "right_force": 1,
+        "duration": 15,
+        "temp": 39,
+        "vibration": 1
+      },
+      "status": "running",
+      "source": "manual",
+      "started_at": "2026-06-22T07:12:37.722Z",
+      "time_left_seconds": 900
+    },
+    {
+      "id": "sess_1782114579568_w56t6x",
+      "patient_id": "pat_1782114543741_jspjk4",
+      "params": {
+        "left_force": 10,
+        "right_force": 10,
+        "duration": 12,
+        "temp": 39,
+        "vibration": 1
+      },
+      "status": "stopped",
+      "source": "manual",
+      "started_at": "2026-06-22T07:49:39.568Z",
+      "time_left_seconds": 720,
+      "ended_at": "2026-06-22T07:49:43.538Z"
+    },
+    {
+      "id": "sess_1782114603495_0e8v8i",
+      "patient_id": "pat_1782114543741_jspjk4",
+      "params": {
+        "left_force": 10,
+        "right_force": 10,
+        "duration": 12,
+        "temp": 39,
+        "vibration": 1
+      },
+      "status": "stopped",
+      "source": "manual",
+      "started_at": "2026-06-22T07:50:03.495Z",
+      "time_left_seconds": 720,
+      "ended_at": "2026-06-22T07:50:07.821Z"
+    }
+  ],
+  "prescriptions": [],
+  "nudges": [],
+  "notifications": [],
+  "family_bindings": [
+    {
+      "id": "501",
+      "family_user_id": "3001",
+      "patient_id": "2001",
+      "patient_name": "王大爷",
+      "patient_phone": "186****5678",
+      "remind_status": false,
+      "emergency_contact": true,
+      "created_at": "2026-06-01 10:00:00"
+    }
+  ],
+  "check_ins": [
+    {
+      "id": "ci_2001_1",
+      "patient_id": "2001",
+      "date": "2026-06-03",
+      "type": "therapy",
+      "created_at": "2026-06-03T08:00:00Z"
+    },
+    {
+      "id": "ci_2001_2",
+      "patient_id": "2001",
+      "date": "2026-06-04",
+      "type": "therapy",
+      "created_at": "2026-06-04T08:00:00Z"
+    },
+    {
+      "id": "ci_2001_3",
+      "patient_id": "2001",
+      "date": "2026-06-05",
+      "type": "therapy",
+      "created_at": "2026-06-05T08:00:00Z"
+    },
+    {
+      "id": "ci_2001_4",
+      "patient_id": "2001",
+      "date": "2026-06-06",
+      "type": "therapy",
+      "created_at": "2026-06-06T08:00:00Z"
+    },
+    {
+      "id": "ci_2001_5",
+      "patient_id": "2001",
+      "date": "2026-06-07",
+      "type": "therapy",
+      "created_at": "2026-06-07T08:00:00Z"
+    },
+    {
+      "id": "ci_2001_6",
+      "patient_id": "2001",
+      "date": "2026-06-08",
+      "type": "therapy",
+      "created_at": "2026-06-08T08:00:00Z"
+    },
+    {
+      "id": "ci_2001_7",
+      "patient_id": "2001",
+      "date": "2026-06-22",
+      "type": "therapy",
+      "created_at": "2026-06-09T08:00:00Z"
+    },
+    {
+      "id": "ci_2002_1",
+      "patient_id": "2002",
+      "date": "2026-06-05",
+      "type": "therapy",
+      "created_at": "2026-06-05T08:00:00Z"
+    },
+    {
+      "id": "ci_2002_2",
+      "patient_id": "2002",
+      "date": "2026-06-07",
+      "type": "therapy",
+      "created_at": "2026-06-07T08:00:00Z"
+    },
+    {
+      "id": "ci_2003_1",
+      "patient_id": "2003",
+      "date": "2026-06-06",
+      "type": "exercise",
+      "created_at": "2026-06-06T08:00:00Z"
+    },
+    {
+      "id": "ci_2003_2",
+      "patient_id": "2003",
+      "date": "2026-06-08",
+      "type": "therapy",
+      "created_at": "2026-06-08T08:00:00Z"
+    },
+    {
+      "id": "ci_2003_3",
+      "patient_id": "2003",
+      "date": "2026-06-22",
+      "type": "exercise",
+      "created_at": "2026-06-09T08:00:00Z"
+    }
+  ],
+  "therapy_logs": [
+    {
+      "log_id": "9001",
+      "patient_id": "2001",
+      "therapy_date": "2026-06-22",
+      "mode_used": "Manual",
+      "is_completed": false,
+      "hardware_status": "Normal",
+      "left_force": 0,
+      "right_force": 1,
+      "temp": 39
+    },
+    {
+      "log_id": "9002",
+      "patient_id": "2002",
+      "therapy_date": "2026-06-22",
+      "mode_used": "AI",
+      "is_completed": false,
+      "hardware_status": "Normal",
+      "left_force": 16,
+      "right_force": 15,
+      "temp": 42
+    },
+    {
+      "log_id": "9003",
+      "patient_id": "2003",
+      "therapy_date": "2026-06-22",
+      "mode_used": "Cloud",
+      "is_completed": true,
+      "hardware_status": "Normal"
+    },
+    {
+      "log_id": "9001_2026-06-03",
+      "patient_id": "2001",
+      "therapy_date": "2026-06-03",
+      "mode_used": "AI",
+      "is_completed": false,
+      "hardware_status": "Normal",
+      "left_force": 20,
+      "right_force": 18,
+      "temp": 43
+    },
+    {
+      "log_id": "9001_2026-06-04",
+      "patient_id": "2001",
+      "therapy_date": "2026-06-04",
+      "mode_used": "Manual",
+      "is_completed": false,
+      "hardware_status": "Normal",
+      "left_force": 20,
+      "right_force": 18,
+      "temp": 43
+    },
+    {
+      "log_id": "9001_2026-06-05",
+      "patient_id": "2001",
+      "therapy_date": "2026-06-05",
+      "mode_used": "AI",
+      "is_completed": true,
+      "hardware_status": "Normal",
+      "left_force": 20,
+      "right_force": 18,
+      "temp": 43
+    },
+    {
+      "log_id": "9001_2026-06-06",
+      "patient_id": "2001",
+      "therapy_date": "2026-06-06",
+      "mode_used": "Manual",
+      "is_completed": true,
+      "hardware_status": "Normal",
+      "left_force": 20,
+      "right_force": 18,
+      "temp": 43
+    },
+    {
+      "log_id": "9001_2026-06-07",
+      "patient_id": "2001",
+      "therapy_date": "2026-06-07",
+      "mode_used": "AI",
+      "is_completed": true,
+      "hardware_status": "Normal",
+      "left_force": 20,
+      "right_force": 18,
+      "temp": 43
+    },
+    {
+      "log_id": "9001_2026-06-08",
+      "patient_id": "2001",
+      "therapy_date": "2026-06-08",
+      "mode_used": "Manual",
+      "is_completed": true,
+      "hardware_status": "Normal",
+      "left_force": 20,
+      "right_force": 18,
+      "temp": 43
+    },
+    {
+      "log_id": "log_1782107515586_hvkrn5",
+      "patient_id": "pat_1782107089092_z57mhm",
+      "therapy_date": "2026-06-22",
+      "mode_used": "Manual",
+      "is_completed": false,
+      "hardware_status": "Normal",
+      "left_force": 10,
+      "right_force": 10,
+      "temp": 36
+    },
+    {
+      "log_id": "log_1782114579568_yw2mih",
+      "patient_id": "pat_1782114543741_jspjk4",
+      "therapy_date": "2026-06-22",
+      "mode_used": "Manual",
+      "is_completed": false,
+      "hardware_status": "Normal",
+      "left_force": 10,
+      "right_force": 10,
+      "temp": 39
+    }
+  ],
+  "auth_codes": [
+    {
+      "code": "883912",
+      "doctor_id": "1001",
+      "patient_id": "2002",
+      "params": {
+        "left_force": 15,
+        "right_force": 15,
+        "duration": 20,
+        "temp": 42,
+        "vibration": 1
+      },
+      "used": false
+    },
+    {
+      "code": "662918",
+      "doctor_id": "1002",
+      "patient_id": "2004",
+      "params": {
+        "left_force": 18,
+        "right_force": 16,
+        "duration": 20,
+        "temp": 43,
+        "vibration": 1
+      },
+      "used": false
+    },
+    {
+      "code": "775520",
+      "doctor_id": "1002",
+      "patient_id": "2005",
+      "params": {
+        "left_force": 17,
+        "right_force": 15,
+        "duration": 20,
+        "temp": 42,
+        "vibration": 1
+      },
+      "used": false
+    }
+  ],
+  "bind_qr_tokens": {},
+  "sms_codes": {},
+  "physical_devices": [
+    {
+      "device_id": "KJ-DEMO-001",
+      "token": "kneejoy-demo-token-2026",
+      "patient_id": "2001",
+      "name": "膝悦演示理疗仪 #1",
+      "pending_command": {
+        "id": "dcmd_1782112357725_43zdy8",
+        "command": "START",
+        "left_force": 0,
+        "right_force": 1,
+        "temp": 39,
+        "vibration": 1,
+        "duration": 15,
+        "max_force_limit": 35,
+        "issued_at": "2026-06-22T07:12:37.725Z"
+      },
+      "last_seen_at": null
+    },
+    {
+      "device_id": "KJ-DEMO-002",
+      "token": "kneejoy-demo-token-2026",
+      "patient_id": "2002",
+      "name": "膝悦演示理疗仪 #2",
+      "pending_command": null,
+      "last_seen_at": null
+    }
+  ],
+  "auth_tokens": {
+    "kj_454679b1f9cb4251a1448f6665f695fa": "user_patient_1782107089091_n947z3",
+    "kj_9d15bffb275e4f63821641dd8dcd45cd": "2001",
+    "kj_9ffd2aff05604f61bcc836bce40a501c": "user_patient_1782114543741_4vuw20"
+  }
+}

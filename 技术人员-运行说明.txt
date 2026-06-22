@@ -1,0 +1,28 @@
+膝悦 KneeJoy · 前端联调包
+========================
+
+【快速启动】
+1. 解压后进入本目录
+2. npm install
+3. bash start-dev.sh
+4. 浏览器打开 http://localhost:3000
+
+【演示账号】
+患者：18612345678 / pass_pat_1
+
+【硬件相关代码】
+- src/hardware/deviceApi.ts
+- src/hardware/deviceController.ts
+- src/hardware/wifiHttpAdapter.ts
+- src/components/DeviceDebugPanel.tsx
+- src/components/MotorRetractPanel.tsx
+- docs/API-设备HTTP接口.md
+- docs/技术人员联调运行文档.md
+
+【局域网直连 ESP32】
+.env.local 示例：
+  VITE_HARDWARE_MODE=wifi
+  VITE_DEVICE_IP=192.168.x.x
+
+【端口】前端 3000 | 后端 API 3001
+【GitHub】https://github.com/zmq18560817115-eng/-

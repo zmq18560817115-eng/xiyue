@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/* Fonts + iOS-aligned palette (content/layout unchanged in components) */
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Menlo", Monaco, monospace;
+
+  /* Primary tint → iOS system blue */
+  --color-indigo-50: #e8f3ff;
+  --color-indigo-100: #d6ebff;
+  --color-indigo-150: #c2e0ff;
+  --color-indigo-200: #b8daff;
+  --color-indigo-300: #8cc4ff;
+  --color-indigo-400: #5aa7ff;
+  --color-indigo-500: #2e92ff;
+  --color-indigo-55: #0078f0;
+  --color-indigo-600: #007aff;
+  --color-indigo-650: #0066d6;
+  --color-indigo-700: #0056b3;
+  --color-indigo-750: #004999;
+  --color-indigo-800: #003d82;
+  --color-indigo-900: #002c5c;
+  --color-indigo-950: #1c1c1e;
+
+  /* Neutrals → iOS system gray */
+  --color-slate-50: #f2f2f7;
+  --color-slate-100: #e5e5ea;
+  --color-slate-150: #d1d1d6;
+  --color-slate-200: #c7c7cc;
+  --color-slate-205: #e5e5ea;
+  --color-slate-300: #aeaeb2;
+  --color-slate-400: #8e8e93;
+  --color-slate-500: #636366;
+  --color-slate-600: #48484a;
+  --color-slate-650: #48484a;
+  --color-slate-655: #3a3a3c;
+  --color-slate-700: #3a3a3c;
+  --color-slate-800: #2c2c2e;
+  --color-slate-850: #2c2c2e;
+  --color-slate-900: #1c1c1e;
+
+  /* Semantic accents */
+  --color-red-650: #ff3b30;
+  --color-rose-650: #ff2d55;
+  --color-pink-650: #ff2d55;
+  --color-emerald-400: #30d158;
+  --color-emerald-500: #34c759;
+  --color-teal-600: #32ade6;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+}
+
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overscroll-behavior-y: none;
+  background-color: #f1f5f9;
+}
+
+/* Custom Soft-Shadow & High-Density Styles */
+.m3-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.m3-card:hover {
+  box-shadow: 0 4px 12px 0 rgba(0, 122, 255, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+}
+
+.m3-neushadow-active {
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.m3-slider-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: #007aff;
+  box-shadow: 0 2px 4px rgba(0, 122, 255, 0.3);
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 122, 255, 0.15);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 122, 255, 0.3);
+}
+
+@keyframes thermalPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.35;
+  }
+}
+
+.animate-thermal {
+  animation: thermalPulse 3s infinite ease-in-out;
+}
+
+.hd-border-l-indigo {
+  border-left: 4px solid #007aff;
+}
+.hd-border-l-emerald {
+  border-left: 4px solid #34c759;
+}
+.hd-border-l-amber {
+  border-left: 4px solid #f59e0b;
+}
