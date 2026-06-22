@@ -720,6 +720,86 @@ export default function PatientApp({
     );
   };
 
+  const planCountdownSeconds = activePlanParams
+    ? hardwareState.is_running
+      ? hardwareState.time_left_seconds
+      : activePlanParams.duration * 60
+    : 0;
+
+  const renderDeviceConnectivityCard = (compact = false) => (
+    <div
+      className={`bg-white rounded-3xl border border-slate-200/80 shadow-sm flex flex-col gap-2 shrink-0 ${
+        compact ? 'p-3.5' : 'p-4'
+      }`}
+    >
+      <div className="flex items-center justify-between text-slate-800">
+        <h3 className="text-xs font-bold text-slate-900 font-display flex items-center gap-1.5">
+          <Radio size={16} className="text-indigo-600" /> 硬件设备物理通信
+        </h3>
+        <span
+          className={`text-[9px] px-2 py-0.5 rounded-full font-bold font-mono tracking-wider ${
+            isConnecting
+              ? 'bg-indigo-100 text-indigo-800'
+              : isHardwareLinked
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-amber-100 text-amber-800'
+          }`}
+        >
+          {isConnecting
+            ? '配对中…'
+            : isHardwareLinked
+              ? hardwareState.connection === 'bluetooth'
+                ? 'BLE 已连接'
+                : 'Wi-Fi 已连接'
+              : planReady && showControlPanel
+                ? '待连接设备'
+                : '未连接'}
+        </span>
+      </div>
+
+      <div className={`grid gap-2 mt-1 ${mqttMode ? 'grid-cols-1' : 'grid-cols-2'}`}>
+        {!mqttMode && (
+          <button
+            type="button"
+            disabled={isConnecting}
+            onClick={() => handleTransportConnect('bluetooth')}
+            className={`py-2 px-3 rounded-2xl border text-center text-[10px] font-bold transition flex flex-col items-center gap-1 ${
+              isConnecting ? 'opacity-50 cursor-wait' : 'cursor-pointer'
+            } ${
+              hardwareState.connection === 'bluetooth' && isHardwareLinked
+                ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <Bluetooth size={16} strokeWidth={2.2} />
+            蓝牙 BLE 绑定
+            <span className="text-[8px] font-light text-slate-400">更低功耗 无极配对</span>
+          </button>
+        )}
+        <button
+          type="button"
+          disabled={isConnecting}
+          onClick={() => handleTransportConnect('wifi')}
+          className={`py-2 px-3 rounded-2xl border text-center text-[10px] font-bold transition flex flex-col items-center gap-1 ${
+            isConnecting ? 'opacity-50 cursor-wait' : 'cursor-pointer'
+          } ${
+            hardwareState.connection === 'wifi' && isHardwareLinked
+              ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
+              : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Wifi size={16} strokeWidth={2.2} />
+          {mqttMode ? 'MQTT 云端连接' : '家庭 Wi-Fi 绑定'}
+          <span className="text-[8px] font-light text-slate-400">
+            {mqttMode
+              ? `设备 ID：${getStoredDeviceId() || '未配置'}`
+              : '远程同步 异地数据不漏'}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex-1 flex flex-col h-full select-none text-slate-800 relative bg-slate-50">
 
@@ -1172,23 +1252,22 @@ export default function PatientApp({
         {activeTab === 'therapy' && (
           <div className="flex-1 flex flex-col gap-4">
             
-            {/* 1.0 连接状态 — 方案控制页展示「方案就绪」，不显示未连接 */}
+            {/* 1.0 理疗仪连接状态 + 蓝牙/Wi-Fi 绑定 */}
             {!isClinicalAssessmentFlow && (
-            showControlPanel && planReady ? (
-            <div className="bg-emerald-50 rounded-3xl p-4.5 border border-emerald-200 shadow-sm flex flex-col gap-2 shrink-0">
-              <div className="flex items-center gap-3 text-left">
-                <div className="p-2.5 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <CheckCircle size={20} />
+            <div className="flex flex-col gap-2.5 shrink-0">
+            {showControlPanel && planReady && (
+              <div className="bg-emerald-50 rounded-2xl p-3 border border-emerald-200 shadow-sm flex items-center gap-2.5 text-left">
+                <div className="p-2 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <CheckCircle size={16} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-emerald-900">智能理疗方案已就绪</h4>
-                  <p className="text-xs text-emerald-700/90 mt-1 leading-relaxed">
-                    参数已按 AI 评估结果锁定。确认后可开始治疗；连接设备后将自动同步至硬件。
+                  <h4 className="text-xs font-black text-emerald-900">智能理疗方案已就绪</h4>
+                  <p className="text-[10px] text-emerald-700/90 mt-0.5 leading-relaxed">
+                    参数已锁定，连接设备后即可开始治疗。
                   </p>
                 </div>
               </div>
-            </div>
-            ) : (
+            )}
             <div className="bg-white rounded-3xl p-4.5 shadow-md shadow-slate-100/60 flex flex-col gap-2.5 shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-left">
@@ -1221,6 +1300,10 @@ export default function PatientApp({
                         <span className="text-rose-700 bg-rose-50 border border-rose-150 px-2 py-0.5 rounded text-[11px] font-black whitespace-nowrap">
                           连接失败
                         </span>
+                      ) : planReady && showControlPanel ? (
+                        <span className="text-sky-700 bg-sky-50 border border-sky-150 px-2 py-0.5 rounded text-[11px] font-black whitespace-nowrap">
+                          待连接设备
+                        </span>
                       ) : (
                         <span className="text-amber-700 bg-amber-50 border border-amber-150 px-2 py-0.5 rounded text-[11px] font-black whitespace-nowrap">
                           离线模式
@@ -1240,9 +1323,13 @@ export default function PatientApp({
                             : '您的膝关节理疗仪已通过蓝牙连接，随时可以开启理疗。'
                           : connectionError
                             ? connectionError
-                            : mqttMode
-                              ? '点击右侧开关连接云端设备（MQTT），或先在「硬件联调」确认设备 ID。'
-                              : '现在还没连接物理设备，您可以点击右侧滑钮开启蓝牙，或者点击下方徒手练习。'}
+                            : planReady && showControlPanel
+                              ? mqttMode
+                                ? '方案已载入。请用下方 MQTT 云端连接或右侧开关绑定设备后开始治疗。'
+                                : '方案已载入。请用下方蓝牙或 Wi-Fi 绑定设备，或点击右侧开关连接。'
+                              : mqttMode
+                                ? '点击右侧开关连接云端设备（MQTT），或先在「硬件联调」确认设备 ID。'
+                                : '现在还没连接物理设备，您可以点击右侧滑钮开启蓝牙，或者点击下方徒手练习。'}
                     </p>
                   </div>
                 </div>
@@ -1293,7 +1380,8 @@ export default function PatientApp({
                 />
               )}
             </div>
-            )
+            {renderDeviceConnectivityCard()}
+            </div>
             )}
 
             {/* 1.0b / 1.1 离线徒手康复 — 仅在控制面板且未连接设备时展示，不与自评/匹配/聊天混排 */}
@@ -1869,19 +1957,21 @@ export default function PatientApp({
                   </span>
                 </div>
 
-                {hardwareState.is_running && activePlanParams ? (
+                {activePlanParams ? (
+                  hardwareState.is_running ? (
                   <div className="bg-indigo-950 text-white rounded-2xl p-4 flex flex-col items-center gap-2.5 border border-indigo-500/20 shadow-md">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs text-emerald-400 font-bold animate-pulse">
                       <Radio size={12} /> 理疗仪运行中 (ACTIVE)
                     </span>
                     
                     <div className="flex items-baseline gap-1 text-slate-200 my-1">
+                      <Timer size={18} className="text-indigo-300 mr-1 shrink-0" />
                       <span className="text-3xl font-mono font-bold text-white tracking-widest">
-                        {Math.floor(hardwareState.time_left_seconds / 60).toString().padStart(2, '0')}
+                        {Math.floor(planCountdownSeconds / 60).toString().padStart(2, '0')}
                       </span>
                       <span className="text-sm font-black text-zinc-400 mr-2">分</span>
                       <span className="text-3xl font-mono font-bold text-white tracking-widest">
-                        {(hardwareState.time_left_seconds % 60).toString().padStart(2, '0')}
+                        {(planCountdownSeconds % 60).toString().padStart(2, '0')}
                       </span>
                       <span className="text-sm font-black text-zinc-400">秒</span>
                     </div>
@@ -1905,10 +1995,28 @@ export default function PatientApp({
                       </div>
                     </div>
                   </div>
+                  ) : (
+                  <div className="bg-slate-900 text-white rounded-2xl p-4 flex flex-col items-center gap-2 border border-slate-700/50 shadow-md">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full text-xs text-indigo-300 font-bold">
+                      <Timer size={12} /> 理疗倒计时 · 待开始
+                    </span>
+                    <div className="flex items-baseline gap-1 text-slate-200 my-1">
+                      <span className="text-3xl font-mono font-bold text-white tracking-widest">
+                        {Math.floor(planCountdownSeconds / 60).toString().padStart(2, '0')}
+                      </span>
+                      <span className="text-sm font-black text-zinc-400 mr-2">分</span>
+                      <span className="text-3xl font-mono font-bold text-white tracking-widest">
+                        {(planCountdownSeconds % 60).toString().padStart(2, '0')}
+                      </span>
+                      <span className="text-sm font-black text-zinc-400">秒</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 font-bold">按智能方案设定 · 点击开始后将自动倒数</p>
+                  </div>
+                  )
                 ) : (
                   <div className="text-center py-2.5 px-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center gap-2 text-slate-500 font-bold text-xs">
                     <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></span>
-                    <span>理疗仪已就绪，请启动康复理疗</span>
+                    <span>请先完成智能评估并载入推荐方案</span>
                   </div>
                 )}
 
@@ -2505,75 +2613,7 @@ export default function PatientApp({
             </div>
 
             {/* 3.2 DEVICE CONNECTIVITY PORTS PARERS */}
-            <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-sm flex flex-col gap-2 shrink-0">
-              <div className="flex items-center justify-between text-slate-800">
-                <h3 className="text-xs font-bold text-slate-900 font-display flex items-center gap-1.5">
-                  <Radio size={16} className="text-indigo-600" /> 硬件设备物理通信
-                </h3>
-                <span
-                  className={`text-[9px] px-2 py-0.5 rounded-full font-bold font-mono tracking-wider ${
-                    isConnecting
-                      ? 'bg-indigo-100 text-indigo-800'
-                      : isHardwareLinked
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : 'bg-rose-100 text-rose-800'
-                  }`}
-                >
-                  {isConnecting
-                    ? '配对中…'
-                    : isHardwareLinked
-                      ? hardwareState.connection === 'bluetooth'
-                        ? 'BLE 已连接'
-                        : 'Wi-Fi 已连接'
-                      : '未连接'}
-                </span>
-              </div>
-
-              <div className={`grid gap-2 mt-1 ${mqttMode ? 'grid-cols-1' : 'grid-cols-2'}`}>
-                {!mqttMode && (
-                <button
-                  type="button"
-                  disabled={isConnecting}
-                  onClick={() => handleTransportConnect('bluetooth')}
-                  className={`py-2 px-3 rounded-2xl border text-center text-[10px] font-bold transition flex flex-col items-center gap-1 ${
-                    isConnecting
-                      ? 'opacity-50 cursor-wait'
-                      : 'cursor-pointer'
-                  } ${
-                    hardwareState.connection === 'bluetooth' && isHardwareLinked
-                      ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
-                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <Bluetooth size={16} strokeWidth={2.2} />
-                  蓝牙 BLE 绑定
-                  <span className="text-[8px] font-light text-slate-400">更低功耗 无极配对</span>
-                </button>
-                )}
-                <button
-                  type="button"
-                  disabled={isConnecting}
-                  onClick={() => handleTransportConnect('wifi')}
-                  className={`py-2 px-3 rounded-2xl border text-center text-[10px] font-bold transition flex flex-col items-center gap-1 ${
-                    isConnecting
-                      ? 'opacity-50 cursor-wait'
-                      : 'cursor-pointer'
-                  } ${
-                    hardwareState.connection === 'wifi' && isHardwareLinked
-                      ? 'bg-indigo-50 border-indigo-500 text-indigo-700'
-                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                  }`}
-                >
-                  <Wifi size={16} strokeWidth={2.2} />
-                  {mqttMode ? 'MQTT 云端连接' : '家庭 Wi-Fi 绑定'}
-                  <span className="text-[8px] font-light text-slate-400">
-                    {mqttMode
-                      ? `设备 ID：${getStoredDeviceId() || '未配置'}`
-                      : '远程同步 异地数据不漏'}
-                  </span>
-                </button>
-              </div>
-            </div>
+            {renderDeviceConnectivityCard()}
 
             {/* 3.3 GUARDIAN DETAILS SYNC */}
             <div className="bg-white rounded-3xl p-4 border border-slate-200/80 shadow-sm flex flex-col gap-2">
