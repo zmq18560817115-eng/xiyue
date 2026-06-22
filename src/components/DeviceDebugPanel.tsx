@@ -12,6 +12,7 @@ import {
 import {
   deviceController,
   getStoredDeviceTarget,
+  getStoredDeviceId,
   isMqttHardwareMode,
   setStoredDeviceTarget,
   statusToTelemetryPatch,
@@ -162,7 +163,7 @@ export default function DeviceDebugPanel({
             <input
               value={target}
               onChange={(e) => setTarget(e.target.value)}
-              placeholder={isMqttHardwareMode() ? 'kj_d885ac8d1872' : '192.168.1.100'}
+              placeholder={isMqttHardwareMode() ? getStoredDeviceId() || 'kj_d885ac8d1870' : '192.168.1.100'}
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono outline-none focus:border-indigo-400"
             />
           </label>

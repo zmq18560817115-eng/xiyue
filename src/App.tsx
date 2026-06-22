@@ -54,7 +54,7 @@ import {
   statusToHardwarePatch,
   statusToTelemetryPatch,
 } from './hardware/deviceController';
-import { canSyncToPhysicalDevice, mergeApiDevice } from './hardware/deviceSync';
+import { canSyncToPhysicalDevice, canRelayViaCloudApi, mergeApiDevice } from './hardware/deviceSync';
 import { isMqttHardwareMode } from './hardware/mqttConfig';
 import type {
   ConnectionPhase,
@@ -146,18 +146,27 @@ export default function App() {
 
   const loadPatientData = useCallback(async () => {
     try {
-      const [profile, device, casesRes, rxRes, familyRes] = await Promise.all([
+      const [profile, deviceSnapshot, casesRes, rxRes, familyRes] = await Promise.all([
         getPatientProfile(),
         getPatientDevice(),
         getClinicalCases(),
         getPendingPrescriptions(),
         getPatientFamilyBindings(),
       ]);
+      let device = deviceSnapshot;
       setPatientProfile(profile);
+      if (isMqttHardwareMode()) {
+        try {
+          const cloudDevice = await updateDeviceConnection('wifi');
+          device = cloudDevice;
+        } catch {
+          /* 云端中继注册失败时仍允许后续手动 MQTT 连接 */
+        }
+      }
       setHardwareState((prev) => {
         const merged = mergeApiDevice(prev, device);
         if (isMqttHardwareMode()) {
-          if (prev.connection === 'wifi') setConnectionPhase('connected');
+          if (merged.connection === 'wifi') setConnectionPhase('connected');
         } else {
           setConnectionPhase(device.connection === 'disconnected' ? 'disconnected' : 'connected');
         }
@@ -667,11 +676,12 @@ export default function App() {
       const becameRunning = syncRun && updates.is_running === true && !prev.is_running;
       const becameStopped = syncRun && updates.is_running === false && prev.is_running;
       const canSync = canSyncToPhysicalDevice(next);
+      const cloudRelay = canRelayViaCloudApi(apiOnline);
 
-      if (becameRunning && !canSync) {
+      if (becameRunning && !canSync && !cloudRelay) {
         queueMicrotask(() => {
           const hint = isMqttHardwareMode()
-            ? '请先完成 MQTT 云端连接（顶部开关或设置页）'
+            ? '请先完成 MQTT 云端连接，或确认 Render 云端 API 可用'
             : '请先连接 Wi-Fi 设备';
           handleAddSerialLog(`[硬件下发跳过] ${hint}`);
           setActiveNotification({
@@ -735,6 +745,12 @@ export default function App() {
               );
             });
         }
+      } else if (cloudRelay && (becameRunning || becameStopped)) {
+        handleAddSerialLog(
+          becameRunning
+            ? '[云端中继] 已通过 Render API 下发 START，ESP32 需配置 API_HOST=kneejoy.onrender.com 并轮询 /device/commands'
+            : '[云端中继] 已通过 Render API 下发 STOP'
+        );
       }
 
       if (apiOnline && becameRunning && !activeSessionId) {

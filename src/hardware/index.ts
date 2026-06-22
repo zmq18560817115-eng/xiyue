@@ -13,7 +13,7 @@ export {
 } from './deviceController';
 export { isMqttHardwareMode } from './mqttConfig';
 export { isMqttConnected } from './mqttClient';
-export { canSyncToPhysicalDevice, mergeApiDevice } from './deviceSync';
+export { canSyncToPhysicalDevice, canRelayViaCloudApi, canStartTherapy, mergeApiDevice } from './deviceSync';
 export {
   setHardwareAdapter,
   getHardwareAdapter,

@@ -38,6 +38,7 @@ import type { ConnectionPhase, ConnectionProgress, HardwareTransport } from '../
 import {
   getStoredDeviceId,
   isMqttHardwareMode,
+  canStartTherapy,
   canSyncToPhysicalDevice,
 } from '../hardware';
 import MotorRetractPanel from './MotorRetractPanel';
@@ -560,9 +561,11 @@ export default function PatientApp({
 
   // Toggle Therapy
   const handleToggleTherapy = () => {
-    if (!canSyncToPhysicalDevice(hardwareState)) {
+    if (!canStartTherapy(hardwareState, apiOnline)) {
       if (isMqttHardwareMode()) {
-        alert('请先完成 MQTT 云端连接：点击顶部连接开关，或到「设置 → MQTT 云端连接」。');
+        alert(
+          '无法启动治疗：请确认已登录云端账号，且 ESP32 已配置 kneejoy.onrender.com；或在「硬件联调」完成 MQTT 连接。'
+        );
       } else {
         alert('未连接物理理疗硬件！已经为您激活【居家徒手云康复模式】。请在上方黄色卡片处一键点击“跟练并完成今日打卡”，或者点击上方滑钮开启蓝牙并开启设备后再开始高压引索。');
       }

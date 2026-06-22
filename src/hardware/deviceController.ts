@@ -16,6 +16,7 @@ import { isMqttHardwareMode } from './mqttConfig';
 import {
   disconnectMqtt,
   onMqttStatus,
+  publishCmd,
   subscribeDeviceTopics,
   waitForDeviceStatus,
 } from './mqttClient';
@@ -49,12 +50,14 @@ export function setStoredDeviceIp(ip: string): void {
 }
 
 export function getStoredDeviceId(): string {
-  if (typeof window === 'undefined') return '';
-  return (
-    localStorage.getItem(DEVICE_ID_KEY) ??
-    import.meta.env.VITE_DEVICE_ID ??
-    ''
-  ).trim();
+  const fromEnv = (import.meta.env.VITE_DEVICE_ID ?? '').trim();
+  if (typeof window === 'undefined') return fromEnv;
+  const stored = (localStorage.getItem(DEVICE_ID_KEY) ?? '').trim();
+  if (fromEnv && stored && stored !== fromEnv) {
+    localStorage.setItem(DEVICE_ID_KEY, fromEnv);
+    return fromEnv;
+  }
+  return stored || fromEnv;
 }
 
 export function setStoredDeviceId(id: string): void {
@@ -175,15 +178,29 @@ export class DeviceController {
   async connect(target?: string): Promise<{ info: DeviceInfo; status: DeviceStatus }> {
     if (isMqttHardwareMode()) {
       const deviceId = resolveDeviceId(target);
-      /* 先注册等待，再订阅，避免错过 broker 保留的 status 消息 */
-      const statusPromise = waitForDeviceStatus(deviceId);
-      await subscribeDeviceTopics(deviceId);
       this.ensureMqttListener(deviceId);
-      const raw = (await statusPromise) as Record<string, unknown>;
+      const statusPromise = waitForDeviceStatus(deviceId, 15000);
+      await subscribeDeviceTopics(deviceId);
+      try {
+        await publishCmd(deviceId, { action: 'status' });
+      } catch {
+        /* 设备固件若不支持 status 指令，仍等待周期上报 */
+      }
+      let raw: Record<string, unknown>;
+      try {
+        raw = (await statusPromise) as Record<string, unknown>;
+      } catch (err) {
+        throw new Error(
+          `云端 MQTT 已连接，但未收到设备 ${deviceId} 的状态。请确认：1) ESP32 已连 Wi-Fi；2) 串口 id 与页面一致；3) EMQX 账号有 kneejoy/# 读写权限。${
+            err instanceof Error ? `（${err.message}）` : ''
+          }`
+        );
+      }
       this.applyMqttStatus(raw);
       this.lastInfo = mqttPayloadToDeviceInfo(raw);
-      if (this.lastInfo.type !== 'knee_therapy') {
-        throw new Error(`设备类型不匹配：${this.lastInfo.type}`);
+      const deviceType = this.lastInfo.type?.toLowerCase() ?? '';
+      if (deviceType && deviceType !== 'knee_therapy' && deviceType !== 'unknown') {
+        console.warn('[KneeJoy] 设备 type 非 knee_therapy:', this.lastInfo.type);
       }
       return { info: this.lastInfo, status: this.lastStatus! };
     }
